@@ -8,6 +8,7 @@ option java_package = "api.grpc.spring.boot.user";
 service UserService {
   rpc GetUserByLogin(GetUserByLoginRequest) returns (UserResponse);
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+  rpc UploadFileAndString(UploadImageUserRequest) returns (UploadImageUserResponse);
 }
 
 message GetUserByLoginRequest {
@@ -33,4 +34,15 @@ message RegisterUserRequest {
 
 message RegisterUserResponse {
   string message = 1;
+}
+
+message UploadImageUserRequest {
+  string message = 1;
+  bytes file = 2;
+}
+
+message UploadImageUserResponse {
+  string status = 1;
+  string details = 2;
+  bytes file = 3;
 }

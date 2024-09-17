@@ -11,5 +11,6 @@ public record User(
         String email,
         String login,
         String password,
-        UserRole role
+        UserRole role,
+        byte[] image
 ) {}

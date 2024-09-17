@@ -1,5 +1,6 @@
 package api.grpc.spring.boot.user.services.implementations;
 
+import api.grpc.spring.boot.user.domain.enumaration.UserRole;
 import api.grpc.spring.boot.user.exceptions.UserAlreadyExistsException;
 import api.grpc.spring.boot.user.repositories.UserRepository;
 import api.grpc.spring.boot.user.services.UserService;
@@ -22,6 +23,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void uploadImageUser(byte[] image) {
+        User newUser = new User(
+                UUID.randomUUID().toString(),
+                "name",
+                "email",
+                "login",
+                bCryptPasswordEncoder.encode("password"),
+                UserRole.ADMIN,
+                image
+        );
+
+        userRepository.save(newUser);
+    }
+
+    @Override
     public void registerUser(RegisterUserDto registerUserDto) {
         if (userRepository.findByLoginAndEmail(registerUserDto.login(), registerUserDto.email()).isPresent()) {
             throw new UserAlreadyExistsException("User customer already exists");
@@ -33,7 +49,8 @@ public class UserServiceImpl implements UserService {
                 registerUserDto.email(),
                 registerUserDto.login(),
                 bCryptPasswordEncoder.encode(registerUserDto.password()),
-                registerUserDto.role()
+                registerUserDto.role(),
+                null
         );
 
         userRepository.save(newUser);

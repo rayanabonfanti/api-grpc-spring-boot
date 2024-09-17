@@ -5,5 +5,6 @@ import api.grpc.spring.boot.user.domain.orm.User;
 
 public interface UserService {
     void registerUser(RegisterUserDto registerUserDto);
+    void uploadImageUser(byte[] image);
     User getUserByLogin(String login);
 }

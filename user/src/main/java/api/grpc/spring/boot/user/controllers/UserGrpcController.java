@@ -5,6 +5,7 @@ import api.grpc.spring.boot.user.domain.dto.RegisterUserDto;
 import api.grpc.spring.boot.user.domain.enumaration.UserRole;
 import api.grpc.spring.boot.user.exceptions.UserNotFoundException;
 import api.grpc.spring.boot.user.services.UserService;
+import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import api.grpc.spring.boot.user.domain.orm.User;
@@ -17,6 +18,17 @@ public class UserGrpcController extends UserServiceGrpc.UserServiceImplBase {
 
     public UserGrpcController(UserService userService) {
         this.userService = userService;
+    }
+
+    @Override
+    public void uploadFileAndString(UploadImageUserRequest request, StreamObserver<UploadImageUserResponse> responseObserver) {
+        String message = request.getMessage();
+        byte[] fileBytes = request.getFile().toByteArray();
+
+        userService.uploadImageUser(fileBytes);
+
+        responseObserver.onNext(UploadImageUserResponse.newBuilder().setStatus("1").setDetails(message).setFile(ByteString.copyFrom(fileBytes)).build());
+        responseObserver.onCompleted();
     }
 
     @Override

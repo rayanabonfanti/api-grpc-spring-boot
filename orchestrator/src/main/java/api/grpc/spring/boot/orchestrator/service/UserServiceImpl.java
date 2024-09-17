@@ -4,9 +4,7 @@ import api.grpc.spring.boot.orchestrator.domain.enumaration.UserRole;
 import api.grpc.spring.boot.orchestrator.domain.orm.User;
 import api.grpc.spring.boot.orchestrator.exceptions.UserNotFoundException;
 import api.grpc.spring.boot.orchestrator.interceptor.AuthorizationInterceptor;
-import api.grpc.spring.boot.user.GetUserByLoginRequest;
-import api.grpc.spring.boot.user.UserResponse;
-import api.grpc.spring.boot.user.UserServiceGrpc;
+import api.grpc.spring.boot.user.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -58,6 +56,29 @@ public class UserServiceImpl {
         } catch (StatusRuntimeException e) {
             if (e.getStatus().getCode() == io.grpc.Status.NOT_FOUND.getCode()) {
                 throw new UserNotFoundException("User with login " + login + " not found.");
+            } else {
+                throw new RuntimeException("An unexpected error occurred: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    public UploadImageUserResponse uploadImageUser(UploadImageUserRequest uploadImageUserRequest) {
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        String token = request.getHeader("Authorization");
+
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+
+            AuthorizationInterceptor interceptor = new AuthorizationInterceptor(token);
+            blockingStub = blockingStub.withInterceptors(interceptor);
+        }
+
+        try {
+            return blockingStub.uploadFileAndString(uploadImageUserRequest);
+            //TODO: receber exceptions do outro microsservico grpc
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus().getCode() == io.grpc.Status.NOT_FOUND.getCode()) {
+                throw new UserNotFoundException("User with login not found.");
             } else {
                 throw new RuntimeException("An unexpected error occurred: " + e.getMessage(), e);
             }
